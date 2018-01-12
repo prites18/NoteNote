@@ -52,7 +52,7 @@ class NoteNote:
         list_of_colours = ["#F0F8FF", "#F0FFFF", "#F5F5DC", "#FFFAF0", "#F8F8FF",
                            "#DCDCDC", "#FFFFF0", "#F0E68C", "#E6E6FA", "#FFF0F5",
                            "#FFFACD", "#E0FFFF", "#FAFAD2", "#FFFFE0", "#FAF0E6",
-                           "#F5FFFA", "#FFE4E1", "#FFE4B5", "#FFEFD5"]
+                           "#F5FFFA", "#FFE4E1", "#FFE4B5", "#FFEFD5", "#00ffbf"]
         my_color = random.choice(list_of_colours)
         return my_color
 
