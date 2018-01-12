@@ -5,8 +5,8 @@ It can be used as an alternative to the sticky notes feature on the new windows 
 
 ## Screenshots
 
-<img src="./screenshots/1.png" width="350">   <img src="./screenshots/2.png" width="350">
-<img src="./screenshots/3.png" width="350">   <img src="./screenshots/4.png" width="350">
+<img src="./Screenshots/1.png" width="350">   <img src="./Screenshots/2.png" width="350">
+<img src="./Screenshots/3.png" width="350">   <img src="./Screenshots/4.png" width="350">
 
 ## Usage
 
