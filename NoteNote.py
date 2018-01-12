@@ -14,6 +14,8 @@ class NoteNote:
         self.notes = ""
         self.notes_file = "notes.bin"
         self.app = Tk()
+        img = PhotoImage(file='letter-n.gif')
+        self.app.tk.call('wm', 'iconphoto', self.app._w, img)
         self.app.title("NoteNote:  {}".format(self.curr_date()))
         self.app.resizable(False, False)
         frame = Frame(self.app)
@@ -45,8 +47,9 @@ class NoteNote:
 
     @staticmethod
     def curr_date():
+        """ Returns current data in yyyy-mm-dd format"""
         date_data = datetime.datetime.today().strftime('%Y-%m-%d')
-        return date_data+"\n"
+        return date_data
 
 
 NoteNote()
