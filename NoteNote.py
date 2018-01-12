@@ -5,13 +5,11 @@ Author: Pritesh Ranjan <pranjan341@gmail.com> """
 import os
 import datetime
 import random
-from tkinter import *
+from tkinter import END, Tk, Frame, Text, INSERT, PhotoImage, WORD
 
 class NoteNote:
     """NoteNote app is designed and implemented in this class"""
     def __init__(self):
-        HEIGHT = 400
-        WIDTH = 300
         self.notes = ""
         self.notes_file = "notes.bin"
         self.app = Tk()
@@ -22,7 +20,7 @@ class NoteNote:
         self.app.resizable(False, False)
         frame = Frame(self.app)
         frame.pack()
-        frame.config(height=HEIGHT, width=WIDTH)
+        frame.config(height=400, width=300)
         self.text_area = Text(frame, height=18, width=30, bg=self.bg_color, wrap=WORD, font=45)
         self.text_area.pack()
         self.text_area.insert(INSERT, self.get_data())
@@ -63,6 +61,7 @@ class NoteNote:
         return date_data
 
     def main(self):
+        """display the gui"""
         self.app.mainloop()
 
 
