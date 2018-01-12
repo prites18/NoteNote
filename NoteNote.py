@@ -4,6 +4,7 @@ Author: Pritesh Ranjan <pranjan341@gmail.com> """
 
 import os
 import datetime
+import random
 from tkinter import *
 
 class NoteNote:
@@ -16,16 +17,16 @@ class NoteNote:
         self.app = Tk()
         img = PhotoImage(file='letter-n.gif')
         self.app.tk.call('wm', 'iconphoto', self.app._w, img)
+        self.app.font = "Comic Sans MS"
         self.app.title("NoteNote:  {}".format(self.curr_date()))
         self.app.resizable(False, False)
         frame = Frame(self.app)
         frame.pack()
         frame.config(height=HEIGHT, width=WIDTH)
-        self.text_area = Text(frame, height=23, width=45, bg="yellow")
+        self.text_area = Text(frame, height=18, width=30, bg=self.bg_color, wrap=WORD, font=45)
         self.text_area.pack()
         self.text_area.insert(INSERT, self.get_data())
         self.app.bind("<Key>", self.autosave)
-        self.app.mainloop()
 
     def autosave(self, event):
         """ auto saves the text in the text area to a file as
@@ -45,11 +46,26 @@ class NoteNote:
         else:
             return " "
 
+    @property
+    def bg_color(self):
+        """ Returns a random colour from a list of intelligently choosen beautiful colours"""
+        list_of_colours = ["#F0F8FF", "#F0FFFF", "#F5F5DC", "#FFFAF0", "#F8F8FF",
+                           "#DCDCDC", "#FFFFF0", "#F0E68C", "#E6E6FA", "#FFF0F5",
+                           "#FFFACD", "#E0FFFF", "#FAFAD2", "#FFFFE0", "#FAF0E6",
+                           "#F5FFFA", "#FFE4E1", "#FFE4B5", "#FFEFD5"]
+        my_color = random.choice(list_of_colours)
+        return my_color
+
     @staticmethod
     def curr_date():
         """ Returns current data in yyyy-mm-dd format"""
         date_data = datetime.datetime.today().strftime('%Y-%m-%d')
         return date_data
 
+    def main(self):
+        self.app.mainloop()
 
-NoteNote()
+
+if __name__ == '__main__':
+    NoteNote().main()
+    
