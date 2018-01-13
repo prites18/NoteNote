@@ -1,6 +1,6 @@
 # NoteNote
 
- <img src="./Screenshots/4.png" width="50">
+ <img src="./letter-n.gif" >
 NoteNote sticky note app written in python3 with tkinter gui.
 It can be used as an alternative to the sticky notes feature on the new windows 10 devices.
 
