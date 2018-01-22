@@ -1,59 +1,90 @@
-""" 
-coding=UTF8
-NoteNote sticky note app in python3 with Tk GUI
+"""
+Sticky Note app in python3 with PyQt5 GUI
 Author: Pritesh Ranjan < pranjan341@gmail.com >
 github: https://github.com/prites18/NoteNote
 """
-
+import sys
 import os
-import datetime
 import random
-import glob
-from tkinter import END, Tk, Frame, Text, INSERT, PhotoImage, WORD
+import datetime
 
-class NoteNote:
-    """NoteNote app is designed and implemented in this class"""
+from PyQt5.QtWidgets import (QApplication, QTextEdit, QWidget, QPushButton, QVBoxLayout, QHBoxLayout)
+from PyQt5.QtGui import QIcon, QFont
 
-    def __init__(self, notes_file="notes.bin", app_title="NoteNote") -> None:
-        self.notes = ""
+class NoteNote(QWidget):
+    """Sticky notes class containg all methods and attributes"""
+
+    def __init__(self, notes_file="notes.bin") -> None:
+        super(NoteNote, self).__init__()
         self.notes_file = notes_file
-        self.app = Tk()
-        img = PhotoImage(file="letter-n.gif")
-        self.app.tk.call("wm", "iconphoto", self.app._w, img)
-        self.app.font = "Comic Sans MS"
-        self.app.title(app_title + ": {}".format(self.curr_date()))
-        self.app.resizable(False, False)
-        frame = Frame(self.app)
-        frame.pack()
-        frame.config(height=400, width=300)
-        self.text_area = Text(frame, height=18, width=30, bg=self.bg_color, wrap=WORD, font=45)
-        self.text_area.pack()
-        self.text_area.insert(INSERT, self.get_data())
-        self.app.bind("<Key>", self.autosave)
+        self.text = QTextEdit(self)
+        self.text.setFont(QFont("Comic Sans MS", 13))
+        self.text.setStyleSheet("background-color: {}".format(self.bg_color()))
+        self.text.textChanged.connect(self.auto_save)
+        self.dmp_btn = QPushButton()
+        self.dmp_btn.setIcon(QIcon("icons/garbage.png"))
+        self.lck_btn = QPushButton()
+        self.lck_btn.setIcon(QIcon("icons/lock.png"))
+        #self.pin_btn = QPushButton("PIN")
+        self.gen_ui()
 
-    def autosave(self, event) -> None:
-        """ auto saves the text in the text area to a file as
-        soon any data is inserted"""
+    def gen_ui(self) -> None:
+        """generates the GUI design; adds buttons and other
+           other widgets to the layout """
+        v_layout = QVBoxLayout()
+        h_layout = QHBoxLayout()
+        h_layout.addWidget(self.dmp_btn)
+        h_layout.addSpacing(200)
+        h_layout.addWidget(self.lck_btn)
+        #h_layout.addWidget(self.pin_btn)
+        v_layout.addLayout(h_layout)
+        v_layout.addWidget(self.text)
+        self.dmp_btn.clicked.connect(self.dmp_act)
+        self.lck_btn.clicked.connect(lambda: self.lck_act(self.text.isReadOnly()))
+        #self.pin_btn.clicked.connect(self.pin_act)
+        self.setLayout(v_layout)
+        self.text.setText(self.saved_data)
 
-        with open("notes.bin", "wb") as my_file:
-            self.notes = self.text_area.get(0.0, END)
-            my_file.write(self.notes.encode("utf-8"))
-
-    def get_data(self) -> str:
+    @property
+    def saved_data(self) -> str:
         """ fetches the already stored notes and displays
-        it in the text area at boot"""
+        it in the text area"""
         if os.path.isfile(self.notes_file):
-            with open(self.notes_file, "rb") as my_file:
-                data = my_file.read()
+            with open(self.notes_file, "rb") as nf:
+                data = nf.read()
                 old_notes = data.decode("utf-8")
                 return old_notes
         else:
             return " "
 
-    @property
-    def bg_color(self) -> str:
-        """ Returns a random colour from a list of intelligently choosen beautiful colours"""
+    def dmp_act(self) -> None:
+        """reset sticky notes app"""
+        open(self.notes_file, "wb").close
+        self.text.setText("")
+        sys.exit(0)
 
+    def lck_act(self, text_disabled: bool) -> None:
+        """toggle read only mode for textbox"""
+        if text_disabled is True:
+            self.text.setReadOnly(False)
+            self.lck_btn.setIcon(QIcon("icons/lock.png"))
+        else:
+            self.text.setReadOnly(True)
+            self.lck_btn.setIcon(QIcon("icons/unlock.png"))
+
+    def auto_save(self) -> None:
+        """ auto saves the text in the text area to a file as
+        soon any data is inserted/deleted"""
+        with open(self.notes_file, "wb") as nf:
+            notes = self.text.toPlainText()
+            nf.write(notes.encode("utf-8"))
+
+    def pin_act(self) -> None:
+        pass
+
+    @staticmethod
+    def bg_color() -> str:
+        """ Returns a random colour from a list of intelligently choosen beautiful colours"""
         list_of_colours = ["#F0F8FF", "#F0FFFF", "#F5F5DC", "#FFFAF0", "#F8F8FF",
                            "#DCDCDC", "#FFFFF0", "#F0E68C", "#E6E6FA", "#FFF0F5",
                            "#FFFACD", "#E0FFFF", "#FAFAD2", "#FFFFE0", "#FAF0E6",
@@ -63,32 +94,19 @@ class NoteNote:
 
     @staticmethod
     def curr_date() -> str:
-        """ Returns current data in yyyy-mm-dd format"""
-
-        date_data = datetime.datetime.today().strftime("%Y-%m-%d")
+        """ Returns current data in dd-mm-yyyy format"""
+        date_data = datetime.datetime.today().strftime("%d-%m-%Y")
         return date_data
 
     def main(self) -> None:
-        """display the gui"""
+        """sets window properties and display the gui"""
+        self.setGeometry(1070, 0, 300, 300)
+        self.setFixedSize(300, 300)
+        self.setWindowTitle("Sticky Notes {}".format(self.curr_date()))
+        self.setWindowIcon(QIcon("icons/letter-0.png"))
+        self.show()
 
-        self.app.mainloop()
 
-
-
-class AppManager:
-    """ Manages the window instances and loads the required data and programs at startup"""
-    def __init__(self) -> None:
-        self.req_wind = len(glob.glob1("./", "*.bin"))
-        self.note_files = glob.glob("*.bin")
-
-    def startup(self) -> None:
-        """ called when the app is restarted or opened for the first time"""
-        for file in self.note_files:
-            NoteNote(notes_file=file).main()
-
-    def new_window(self) -> None:
-        """ to initialize a new window"""
-        pass
-
-if __name__ == "__main__":
-    AppManager().startup()
+my_app = QApplication(sys.argv)
+note_app = NoteNote().main()
+sys.exit(my_app.exec_())

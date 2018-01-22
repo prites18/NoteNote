@@ -1,0 +1,3 @@
+#!/bin/bash
+cd ~/projects/NoteNote
+python3 stickynotes.py
