@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 Sticky Note app in python3 with PyQt5 GUI
 Author: Pritesh Ranjan < pranjan341@gmail.com >
@@ -6,24 +7,29 @@ github: https://github.com/prites18/NoteNote
 import sys
 import os
 import random
-import datetime
+import getpass
 
-from PyQt5.QtWidgets import (QApplication, QTextEdit, QWidget, QPushButton, QVBoxLayout, QHBoxLayout)
+from PyQt5.QtWidgets import (QApplication, QTextEdit, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLabel)
 from PyQt5.QtGui import QIcon, QFont
+from PyQt5.QtCore import Qt
 
 class NoteNote(QWidget):
     """Sticky notes class containg all methods and attributes"""
 
-    def __init__(self, notes_file="notes.bin") -> None:
+    def __init__(self, notes_file) -> None:
         super(NoteNote, self).__init__()
         self.notes_file = notes_file
+        self.title = QLabel()
+        self.title.setText("NoteNote")
         self.text = QTextEdit(self)
         self.text.setFont(QFont("Comic Sans MS", 13))
         self.text.setStyleSheet("background-color: {}".format(self.bg_color()))
         self.text.textChanged.connect(self.auto_save)
         self.dmp_btn = QPushButton()
+        self.dmp_btn.setToolTip("Delete all notes")
         self.dmp_btn.setIcon(QIcon("icons/garbage.png"))
         self.lck_btn = QPushButton()
+        self.lck_btn.setToolTip("Turn on Protection")
         self.lck_btn.setIcon(QIcon("icons/lock.png"))
         #self.pin_btn = QPushButton("PIN")
         self.gen_ui()
@@ -34,7 +40,9 @@ class NoteNote(QWidget):
         v_layout = QVBoxLayout()
         h_layout = QHBoxLayout()
         h_layout.addWidget(self.dmp_btn)
-        h_layout.addSpacing(200)
+        h_layout.addSpacing(50)
+        h_layout.addWidget(self.title)
+        h_layout.addSpacing(50)
         h_layout.addWidget(self.lck_btn)
         #h_layout.addWidget(self.pin_btn)
         v_layout.addLayout(h_layout)
@@ -68,9 +76,11 @@ class NoteNote(QWidget):
         if text_disabled is True:
             self.text.setReadOnly(False)
             self.lck_btn.setIcon(QIcon("icons/lock.png"))
+            self.lck_btn.setToolTip("Turn on Protection")
         else:
             self.text.setReadOnly(True)
             self.lck_btn.setIcon(QIcon("icons/unlock.png"))
+            self.lck_btn.setToolTip("Turn off Protection")
 
     def auto_save(self) -> None:
         """ auto saves the text in the text area to a file as
@@ -80,6 +90,7 @@ class NoteNote(QWidget):
             nf.write(notes.encode("utf-8"))
 
     def pin_act(self) -> None:
+        """yet to be implemented"""
         pass
 
     @staticmethod
@@ -92,21 +103,19 @@ class NoteNote(QWidget):
         my_color = random.choice(list_of_colours)
         return my_color
 
-    @staticmethod
-    def curr_date() -> str:
-        """ Returns current data in dd-mm-yyyy format"""
-        date_data = datetime.datetime.today().strftime("%d-%m-%Y")
-        return date_data
-
     def main(self) -> None:
-        """sets window properties and display the gui"""
+        """sets window properties and displays the gui"""
         self.setGeometry(1070, 0, 300, 300)
+        self.setWindowFlags(Qt.CustomizeWindowHint | Qt.FramelessWindowHint | Qt.Tool)
         self.setFixedSize(300, 300)
-        self.setWindowTitle("Sticky Notes {}".format(self.curr_date()))
         self.setWindowIcon(QIcon("icons/letter-0.png"))
         self.show()
 
-
-my_app = QApplication(sys.argv)
-note_app = NoteNote().main()
-sys.exit(my_app.exec_())
+if __name__ == "__main__":
+    USER = getpass.getuser()
+    PATH = "/home/"+USER+"/.NoteNote/"
+    if not os.path.exists(PATH):
+        os.makedirs(PATH)
+    APP = QApplication(sys.argv)
+    NOTES_APP = NoteNote(PATH+"notes.bin").main()
+    sys.exit(APP.exec_())
