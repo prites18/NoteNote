@@ -8,10 +8,9 @@ import sys
 import os
 import random
 import getpass
-import glob
 
 from PyQt5.QtWidgets import (QApplication, QTextEdit, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLabel)
-from PyQt5.QtGui import QIcon, QFont
+from PyQt5.QtGui import QIcon, QFont, QPixmap
 from PyQt5.QtCore import Qt, QPoint
 
 
@@ -28,11 +27,12 @@ class NoteNote(QWidget):
         self.dmp_btn = QPushButton()
         self.title = QLabel("NoteNote")
         self.lck_btn = QPushButton()
-        self.new_btn = QPushButton()
+        self.stk_btn = QPushButton()
         self.text = QTextEdit(self)
         self.init_ui()
         self.start = QPoint(0, 0)
         self.pressing = False
+        self.stk_flag=False
 
     def init_ui(self):
         """sets the different UI elements"""
@@ -48,20 +48,20 @@ class NoteNote(QWidget):
         self.title.setAlignment(Qt.AlignCenter)
         self.lck_btn = QPushButton()
         self.lck_btn.setFixedSize(30, 30)
-        self.lck_btn.setToolTip("Turn on Protection")
+        self.lck_btn.setToolTip("Protection off")
         self.lck_btn.setStyleSheet("background-color: {}".format(self.color))
-        self.lck_btn.setIcon(QIcon("icons/lock.png"))
+        self.lck_btn.setIcon(QIcon("icons/unlock.png"))
         self.lck_btn.clicked.connect(lambda: self.lck_act(self.text.isReadOnly()))
-        self.new_btn = QPushButton()
-        self.new_btn.setFixedSize(30, 30)
-        self.new_btn.setToolTip("New notes")
-        self.new_btn.setStyleSheet("background-color: {}".format(self.color))
-        self.new_btn.setIcon(QIcon("icons/plus.png"))
-        self.new_btn.clicked.connect(self.new_act)
+        self.stk_btn = QPushButton()
+        self.stk_btn.setFixedSize(30, 30)
+        self.stk_btn.setToolTip("stick notes")
+        self.stk_btn.setStyleSheet("background-color: {}".format(self.color))
+        self.stk_btn.setIcon(QIcon("icons/pin.png"))
+        self.stk_btn.clicked.connect(self.stk_act)
         h_layout.addWidget(self.dmp_btn)
         h_layout.addWidget(self.title)
         h_layout.addWidget(self.lck_btn)
-        h_layout.addWidget(self.new_btn)
+        h_layout.addWidget(self.stk_btn)
         self.title.setStyleSheet("background-color: {}; color: black".format(self.color))
         self.layout.addLayout(h_layout)
         self.text.setContentsMargins(0, 0, 0, 0)
@@ -78,8 +78,9 @@ class NoteNote(QWidget):
 
     def mousePressEvent(self, event):
         """detects if and when the title bar is held by mouse"""
-        self.start = self.mapToGlobal(event.pos())
-        self.pressing = True
+        if self.stk_flag is False:
+            self.start = self.mapToGlobal(event.pos())
+            self.pressing = True
 
     def mouseMoveEvent(self, event):
         """sets the window coordinates according to the mouse movement"""
@@ -112,19 +113,18 @@ class NoteNote(QWidget):
         """reset sticky notes app"""
         open(self.notes_file, "wb").close
         self.text.setText("")
-        self.close()
-        return True
+        sys.exit()
 
     def lck_act(self, text_disabled: bool) -> None:
         """toggle read only mode for textbox"""
         if text_disabled is True:
             self.text.setReadOnly(False)
-            self.lck_btn.setIcon(QIcon("icons/lock.png"))
-            self.lck_btn.setToolTip("Turn on Protection")
+            self.lck_btn.setIcon(QIcon("icons/unlock.png"))
+            self.lck_btn.setToolTip("Protection off")
         else:
             self.text.setReadOnly(True)
-            self.lck_btn.setIcon(QIcon("icons/unlock.png"))
-            self.lck_btn.setToolTip("Turn off Protection")
+            self.lck_btn.setIcon(QIcon("icons/lock.png"))
+            self.lck_btn.setToolTip("Protection on")
 
     def auto_save(self) -> None:
         """ auto saves the text in the text area to a file as
@@ -133,19 +133,25 @@ class NoteNote(QWidget):
             notes = self.text.toPlainText()
             nf.write(notes.encode("utf-8"))
 
-    def new_act(self) -> None:
-        """open a new window"""
-        AppManager().new_window(self.notes_file, self.x, self.y)
-
+    def stk_act(self) -> None:
+        """stick notes"""
+        self.stk_flag = not self.stk_flag
+        if self.stk_flag:
+            self.stk_btn.setIcon(QIcon("icons/unpin.png"))
+            self.stk_btn.setToolTip("release")
+        else:
+           self.stk_btn.setIcon(QIcon("icons/pin.png"))
+           self.stk_btn.setToolTip("stick notes")
+               
     
     @staticmethod
     def bg_color() -> str:
         """ Returns a random colour from a list of intelligently choosen beautiful colours"""
-        list_of_colours = ["#F0F8FF", "#F0FFFF", "#F5F5DC", "#FFFAF0", "#F8F8FF",
-                           "#DCDCDC", "#FFFFF0", "#F0E68C", "#E6E6FA", "#FFF0F5",
-                           "#FFFACD", "#E0FFFF", "#FAFAD2", "#FFFFE0", "#FAF0E6",
-                           "#F5FFFA", "#FFE4E1", "#FFE4B5", "#FFEFD5", "#00ffbf"]
-        my_color = random.choice(list_of_colours)
+        #list_of_colours = ["#F0F8FF", "#F0FFFF", "#F5F5DC", "#FFFAF0", "#F8F8FF",
+         #                  "#DCDCDC", "#FFFFF0", "#F0E68C", "#E6E6FA", "#FFF0F5",
+          #                 "#FFFACD", "#E0FFFF", "#FAFAD2", "#FFFFE0", "#FAF0E6",
+           #                "#F5FFFA", "#FFE4E1", "#FFE4B5", "#FFEFD5", "#00ffbf"]
+        #my_color = random.choice(list_of_colours)
         r1 = lambda: random.randint(200,255)
         r2 = lambda: random.randint(200,255)
         r3 = lambda: random.randint(150,255)
@@ -157,40 +163,15 @@ class NoteNote(QWidget):
         self.setGeometry(self.x, self.y, 300, 300)
         self.setWindowIcon(QIcon("icons/letter-0.png"))
         self.show()
-        return True
 
-
-class AppManager:
-    """ Manages the window instances and loads the required data and programs at startup"""
-    def __init__(self) -> None:
-        self.app = QApplication(sys.argv)
-        self.req_wind = len(glob.glob1("./", "*.bin"))
-        self.notes_files = glob.glob("*.bin")
-        self.user = getpass.getuser()
-        self.path = "/home/"+self.user+"/.NoteNote/"
-        if not os.path.exists(self.path):
-            os.makedirs(self.path)
-
-    def startup(self) -> None:
-        """ called when the app is restarted or opened for the first time"""
-        if self.req_wind != 0:
-            for file in self.notes_files:
-                NoteNote(self.path+file, 1070, 0).main()
-        else:
-            NoteNote(self.path+"1.bin", 1070, 0).main()
-        sys.exit(self.app.exec_())
-
-
-    def new_window(self, notes_file, x, y) -> None:
-        """ to initialize a new window"""
-        seq_range = "0123456789"
-        seq = int(''.join([inte for inte in notes_file if inte in seq_range]))
-        seq += 1
-        new_file = "{}.bin".format(seq)
-        NoteNote(self.path+new_file, x, y+310).main()
 
 
 
 if __name__ == "__main__":
-    AppManager().startup()
-
+    app = QApplication(sys.argv)
+    user = getpass.getuser()
+    path = "/home/"+user+"/.NoteNote/"
+    if not os.path.exists(path):
+            os.makedirs(path)
+    NoteNote(path+"notes.bin", 1070, 0).main()
+    sys.exit(app.exec_())
