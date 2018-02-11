@@ -42,19 +42,22 @@ chk_internet_connection || error "NO Internet connection; cannot download depend
 echo "installing dependencies via apt package manager"
 sudo apt-get install python3-pyqt5
 spinner &
-chmod u+x NoteNote.py
-sudo install NoteNote.py /usr/local/bin/NoteNote
-
 mkdir -p ~/.NoteNote
-cp icons/ ~/.NoteNote
+cp ./* ~/.NoteNote
 cd ~/.NoteNote
+
+chmod u+x NoteNote.py
+chmod u+x NoteNote
+sudo install NoteNote /usr/local/bin/NoteNote
+sudo cp NoteNote /etc/init.d/
+
 echo "[Desktop Entry]" > NoteNote.desktop
 echo "Version=1.0" >> NoteNote.desktop
 echo "Name=NoteNote" >> NoteNote.desktop
 echo "Comment="NoteNote Sticky Notes"" >> NoteNote.desktop
 echo "Exec=NoteNote" >> NoteNote.desktop
-echo "Path=/home/prites/projects/NoteNote/" >> NoteNote.desktop
-echo "Icon=/home/prites/projects/NoteNote/icons/letter-2.gif" >> NoteNote.desktop
+echo "Path=/home/${USER}/.NoteNote/" >> NoteNote.desktop
+echo "Icon=/home/${USER}/.NoteNote/icons/letter-2.gif" >> NoteNote.desktop
 echo "Terminal=false" >> NoteNote.desktop
 echo "Type=Application" >> NoteNote.desktop
 echo "Categories=Utility;" >> NoteNote.desktop
